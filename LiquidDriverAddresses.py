@@ -32,7 +32,7 @@ LPABI = json.loads(' [{"inputs":[],"payable":false,"stateMutability":"nonpayable
 
 
 masterchefAbi  =InterfaceABI.get_liquidMasterChef_Abi()
-masterchefAddress = w3.toChecksumAddress("0x742474dAE70Fa2AB063aB786b1fBe5704e861a0c")
+masterchefAddress = w3.toChecksumAddress("0x6e2ad6527901c9664f016466b8da1357a004db0f")
 masterchefContract = w3.eth.contract(address=masterchefAddress, abi=masterchefAbi)
 
 dataTemp = []
@@ -43,8 +43,8 @@ poolLength = masterchefContract.functions.poolLength().call()
 for i in range(poolLength):
 
     # Save strat address and LP address
-    poolInfo =  masterchefContract.functions.poolInfo(i).call() 
-    strategyLpAddressTemp = hex(poolInfo[0])
+    strategyAddressTemp = masterchefContract.functions.strategies(i).call() 
+    strategyLpAddressTemp =  masterchefContract.functions.lpToken(i).call() 
 
     # load LP
     tempAddress = w3.toChecksumAddress(str(strategyLpAddressTemp))
@@ -55,16 +55,31 @@ for i in range(poolLength):
         tempLpSymbol = "null"
 
     print("i: %d\t LP: %s" % (i,tempLpSymbol))
-
+    
     if (tempLpSymbol == 'DummyT'):
-        dataTemp.append(["[MASTER PID]" +  tempLpSymbol, strategyLpAddressTemp])
+        dataTemp.append([strategyAddressTemp,"[MASTER PID]" +  tempLpSymbol, strategyLpAddressTemp])
     elif (tempLpSymbol == 'XXX'):
-        dataTemp.append([tempLpSymbol, strategyLpAddressTemp])
-    elif (tempLpSymbol == "LQDR"):
-        dataTemp.append(["LQDR-SingleStaking", strategyLpAddressTemp])
-    elif (i==20):
-        continue
-
+        dataTemp.append([strategyAddressTemp, tempLpSymbol, strategyLpAddressTemp])
+    elif (tempLpSymbol == '3poolV2-f'):
+        dataTemp.append([strategyAddressTemp, tempLpSymbol, strategyLpAddressTemp])
+    elif (tempLpSymbol == 'BPT_LINSPIRIT'):
+        dataTemp.append([strategyAddressTemp, tempLpSymbol, strategyLpAddressTemp])
+    elif (tempLpSymbol == "null"):
+        dataTemp.append([strategyAddressTemp, tempLpSymbol, strategyLpAddressTemp])
+    elif (tempLpSymbol == "BeetXLP_MIM_USDC_USDT"):
+        dataTemp.append([strategyAddressTemp, tempLpSymbol, strategyLpAddressTemp])
+    elif (tempLpSymbol == "BPT-QUARTET"):
+        dataTemp.append([strategyAddressTemp, tempLpSymbol, strategyLpAddressTemp])
+    elif (tempLpSymbol == "BPT_liHND"):
+        dataTemp.append([strategyAddressTemp, tempLpSymbol, strategyLpAddressTemp])
+    elif (tempLpSymbol == "FTM-OPERA"):
+        dataTemp.append([strategyAddressTemp, tempLpSymbol, strategyLpAddressTemp])
+    elif (tempLpSymbol == "BPT-DEIUSDC"):
+        dataTemp.append([strategyAddressTemp, tempLpSymbol, strategyLpAddressTemp])
+    elif (tempLpSymbol == "BPT-sFTMx"):
+        dataTemp.append([strategyAddressTemp, tempLpSymbol, strategyLpAddressTemp])
+    
+    
     else:
         # read token0,1 address
         tempTokenZeroAddress = tempcontract.functions.token0().call()
@@ -87,11 +102,10 @@ for i in range(poolLength):
             tempString = tempLpSymbol + " " + tempTokenZeroSymbol + "-" + tempTokenOneSymbol
         
         # save data
-        dataTemp.append([tempString, strategyLpAddressTemp])
+        dataTemp.append([strategyAddressTemp, tempString, strategyLpAddressTemp])
     
 
 
-data = pd.DataFrame(data = dataTemp, columns=['LP Name','LP Address'])
-data.index.name = 'PID'
-
-csvData = data.to_csv("./csvData/contractAddressesOld.csv")
+data = pd.DataFrame(data = dataTemp, columns=['strategy','LP Name','LP Address'])
+data.index.name = "PID"
+csvData = data.to_csv("./csvData/contractAddresses.csv")
